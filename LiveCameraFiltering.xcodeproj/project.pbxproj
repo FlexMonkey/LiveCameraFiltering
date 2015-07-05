@@ -12,6 +12,7 @@
 		3ED76C971B48F4680084C878 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3ED76C951B48F4680084C878 /* Main.storyboard */; };
 		3ED76C991B48F4680084C878 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3ED76C981B48F4680084C878 /* Assets.xcassets */; };
 		3ED76C9C1B48F4680084C878 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3ED76C9A1B48F4680084C878 /* LaunchScreen.storyboard */; };
+		3ED76CA51B48FFB20084C878 /* IMG_3228.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3ED76CA41B48FFB20084C878 /* IMG_3228.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		3ED76C981B48F4680084C878 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3ED76C9B1B48F4680084C878 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3ED76C9D1B48F4680084C878 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3ED76CA41B48FFB20084C878 /* IMG_3228.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_3228.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +56,7 @@
 		3ED76C901B48F4680084C878 /* LiveCameraFiltering */ = {
 			isa = PBXGroup;
 			children = (
+				3ED76CA31B48FFA80084C878 /* assets */,
 				3ED76C911B48F4680084C878 /* AppDelegate.swift */,
 				3ED76C931B48F4680084C878 /* ViewController.swift */,
 				3ED76C951B48F4680084C878 /* Main.storyboard */,
@@ -62,6 +65,14 @@
 				3ED76C9D1B48F4680084C878 /* Info.plist */,
 			);
 			path = LiveCameraFiltering;
+			sourceTree = "<group>";
+		};
+		3ED76CA31B48FFA80084C878 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				3ED76CA41B48FFB20084C878 /* IMG_3228.jpg */,
+			);
+			name = assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,6 +134,7 @@
 			files = (
 				3ED76C9C1B48F4680084C878 /* LaunchScreen.storyboard in Resources */,
 				3ED76C991B48F4680084C878 /* Assets.xcassets in Resources */,
+				3ED76CA51B48FFB20084C878 /* IMG_3228.jpg in Resources */,
 				3ED76C971B48F4680084C878 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
