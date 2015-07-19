@@ -21,7 +21,7 @@ let Crystallize = "Crystallize"
 let CrystallizeFilter = CIFilter(name: "CICrystallize", withInputParameters: ["inputRadius" : 30])
 
 let Edges = "Edges"
-let EdgesEffectFilter = CIFilter(name: "CIEdges")
+let EdgesEffectFilter = CIFilter(name: "CIEdges", withInputParameters: ["inputIntensity" : 10])
 
 let HexagonalPixellate = "Hex Pixellate"
 let HexagonalPixellateFilter = CIFilter(name: "CIHexagonalPixellate", withInputParameters: ["inputScale" : 40])
