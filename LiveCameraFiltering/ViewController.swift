@@ -11,10 +11,10 @@ import UIKit
 import AVFoundation
 import CoreMedia
 
-let CMYKHalftone = "CMYKHalftone"
+let CMYKHalftone = "CMYK Halftone"
 let CMYKHalftoneFilter = CIFilter(name: "CICMYKHalftone", withInputParameters: ["inputWidth" : 20, "inputSharpness": 1])
 
-let ComicEffect = "ComicEffect"
+let ComicEffect = "Comic Effect"
 let ComicEffectFilter = CIFilter(name: "CIComicEffect")
 
 let Crystallize = "Crystallize"
@@ -38,25 +38,25 @@ let LineOverlayFilter = CIFilter(name: "CILineOverlay")
 let Posterize = "Posterize"
 let PosterizeFilter = CIFilter(name: "CIColorPosterize", withInputParameters: ["inputLevels" : 5])
 
-let FilterNames = [CMYKHalftone, ComicEffect, Crystallize, Edges, HexagonalPixellate, Invert, Pointillize, LineOverlay, Posterize]
+let Filters = [
+    CMYKHalftone: CMYKHalftoneFilter,
+    ComicEffect: ComicEffectFilter,
+    Crystallize: CrystallizeFilter,
+    Edges: EdgesEffectFilter,
+    HexagonalPixellate: HexagonalPixellateFilter,
+    Invert: InvertFilter,
+    Pointillize: PointillizeFilter,
+    LineOverlay: LineOverlayFilter,
+    Posterize: PosterizeFilter
+]
+
+let FilterNames = [String](Filters.keys)
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate
 {
     let mainGroup = UIStackView()
     let imageView = UIImageView(frame: CGRectZero)
     let filtersControl = UISegmentedControl(items: FilterNames)
-    
-    let filters = [
-        CMYKHalftone: CMYKHalftoneFilter,
-        ComicEffect: ComicEffectFilter,
-        Crystallize: CrystallizeFilter,
-        Edges: EdgesEffectFilter,
-        HexagonalPixellate: HexagonalPixellateFilter,
-        Invert: InvertFilter,
-        Pointillize: PointillizeFilter,
-        LineOverlay: LineOverlayFilter,
-        Posterize: PosterizeFilter
-    ]
     
     override func viewDidLoad()
     {
@@ -107,7 +107,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!)
     {
-        guard let filter = filters[FilterNames[filtersControl.selectedSegmentIndex]] else
+        guard let filter = Filters[FilterNames[filtersControl.selectedSegmentIndex]] else
         {
             return
         }
