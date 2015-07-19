@@ -1,5 +1,5 @@
 # LiveCameraFiltering
-Demonstration of applying a Comic Book filter to a live video feed
+Demonstration of applying a selection of CIFilters (`CICMYKHalftone`, `CIComicEffect`, `CIEdges`, `CIColorInvert`, `CIPointillize`, `CILineOverlay` and `CIColorPosterize`) to a live video feed. 
 
 ![Demo](/LiveCameraFiltering/IMG_3228.jpg)
 
