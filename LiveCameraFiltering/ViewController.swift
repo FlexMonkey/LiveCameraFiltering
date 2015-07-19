@@ -50,7 +50,7 @@ let Filters = [
     Posterize: PosterizeFilter
 ]
 
-let FilterNames = [String](Filters.keys)
+let FilterNames = [String](Filters.keys).sort()
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate
 {
