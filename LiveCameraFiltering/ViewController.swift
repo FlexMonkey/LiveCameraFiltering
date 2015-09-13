@@ -130,7 +130,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     {
         let topMargin = topLayoutGuide.length
         
-        mainGroup.frame = CGRect(x: 0, y: topMargin, width: view.frame.width, height: view.frame.height - topMargin).rectByInsetting(dx: 5, dy: 5)
+        mainGroup.frame = CGRect(x: 0, y: topMargin, width: view.frame.width, height: view.frame.height - topMargin).insetBy(dx: 5, dy: 5)
     }
     
 }
