@@ -11,70 +11,25 @@ import UIKit
 import AVFoundation
 import CoreMedia
 
-let CMYKHalftone = "CMYK Halftone"
-let CMYKHalftoneFilter = CIFilter(name: "CICMYKHalftone", withInputParameters: ["inputWidth" : 20, "inputSharpness": 1])
-
-let ComicEffect = "Comic Effect"
-let ComicEffectFilter = CIFilter(name: "CIComicEffect")
-
-let Crystallize = "Crystallize"
-let CrystallizeFilter = CIFilter(name: "CICrystallize", withInputParameters: ["inputRadius" : 30])
-
-let Edges = "Edges"
-let EdgesEffectFilter = CIFilter(name: "CIEdges", withInputParameters: ["inputIntensity" : 10])
-
-let HexagonalPixellate = "Hex Pixellate"
-let HexagonalPixellateFilter = CIFilter(name: "CIHexagonalPixellate", withInputParameters: ["inputScale" : 40])
-
-let Invert = "Invert"
-let InvertFilter = CIFilter(name: "CIColorInvert")
-
-let Pointillize = "Pointillize"
-let PointillizeFilter = CIFilter(name: "CIPointillize", withInputParameters: ["inputRadius" : 30])
-
-let LineOverlay = "Line Overlay"
-let LineOverlayFilter = CIFilter(name: "CILineOverlay")
-
-let Posterize = "Posterize"
-let PosterizeFilter = CIFilter(name: "CIColorPosterize", withInputParameters: ["inputLevels" : 5])
-
-let Filters = [
-    CMYKHalftone: CMYKHalftoneFilter,
-    ComicEffect: ComicEffectFilter,
-    Crystallize: CrystallizeFilter,
-    Edges: EdgesEffectFilter,
-    HexagonalPixellate: HexagonalPixellateFilter,
-    Invert: InvertFilter,
-    Pointillize: PointillizeFilter,
-    LineOverlay: LineOverlayFilter,
-    Posterize: PosterizeFilter
-]
-
-let FilterNames = [String](Filters.keys).sort()
-
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate
 {
-    let mainGroup = UIStackView()
+    let bumpDistortionFilter = CIFilter(name: "CIBumpDistortion")!
     let imageView = UIImageView(frame: CGRectZero)
-    let filtersControl = UISegmentedControl(items: FilterNames)
+    
+    typealias TouchInfo = (location: CGPoint, force: CGFloat)
+    
+    var touchInfo = TouchInfo(location: CGPointZero, force: 0)
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        view.addSubview(mainGroup)
-        mainGroup.axis = UILayoutConstraintAxis.Vertical
-        mainGroup.distribution = UIStackViewDistribution.Fill
-        
-        mainGroup.addArrangedSubview(imageView)
-        mainGroup.addArrangedSubview(filtersControl)
+        view.addSubview(imageView)
         
         imageView.contentMode = UIViewContentMode.ScaleAspectFit
         
-        filtersControl.selectedSegmentIndex = 0
-        
         let captureSession = AVCaptureSession()
-        captureSession.sessionPreset = AVCaptureSessionPresetPhoto
+        captureSession.sessionPreset = AVCaptureSessionPreset1280x720
         
         let backCamera = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
         
@@ -105,32 +60,66 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         captureSession.startRunning()
     }
     
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!)
+    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?)
     {
-        guard let filter = Filters[FilterNames[filtersControl.selectedSegmentIndex]] else
+        super.touchesMoved(touches, withEvent: event)
+        
+        guard let touch = touches.first else
         {
             return
         }
         
+        let touchLocation = touch.locationInView(self.view)
+        let force = touch.force
+        let maximumPossibleForce = touch.maximumPossibleForce
+        
+        let normalisedXPosition = touchLocation.x / view.frame.width
+        let normalisedYPosition = 1 - touchLocation.y / view.frame.height
+        let normalisedZPosition = force / maximumPossibleForce
+        
+        touchInfo = TouchInfo(location: CGPoint(x: normalisedXPosition, y: normalisedYPosition),
+            force: normalisedZPosition)
+    }
+    
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?)
+    {
+        super.touchesEnded(touches, withEvent: event)
+        
+        touchInfo = TouchInfo(location: CGPointZero, force: 0)
+    }
+    
+    func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!)
+    {
         let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
         let cameraImage = CIImage(CVPixelBuffer: pixelBuffer!)
         
-        filter!.setValue(cameraImage, forKey: kCIInputImageKey)
+        bumpDistortionFilter.setValue(cameraImage, forKey: kCIInputImageKey)
+        bumpDistortionFilter.setValue(CIVector(x: 1280 * touchInfo.location.x, y: 640 * touchInfo.location.y), forKey: kCIInputCenterKey)
+        bumpDistortionFilter.setValue(-touchInfo.force * 5, forKey: kCIInputScaleKey)
+        bumpDistortionFilter.setValue(250, forKey: kCIInputRadiusKey)
         
-        let filteredImage = UIImage(CIImage: filter!.valueForKey(kCIOutputImageKey) as! CIImage!)
+        let filteredImage = UIImage(CIImage: bumpDistortionFilter.valueForKey(kCIOutputImageKey) as! CIImage!)
         
         dispatch_async(dispatch_get_main_queue())
-        {
-            self.imageView.image = filteredImage
+            {
+                self.imageView.image = filteredImage
         }
         
+    }
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask
+    {
+        return UIInterfaceOrientationMask.Landscape
     }
     
     override func viewDidLayoutSubviews()
     {
         let topMargin = topLayoutGuide.length
         
-        mainGroup.frame = CGRect(x: 0, y: topMargin, width: view.frame.width, height: view.frame.height - topMargin).insetBy(dx: 5, dy: 5)
+        imageView.frame = CGRect(x: 0,
+            y: topMargin,
+            width: view.frame.width,
+            height: view.frame.height - topMargin).insetBy(dx: 5, dy: 5)
     }
     
 }
