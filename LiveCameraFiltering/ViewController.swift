@@ -3,6 +3,7 @@
 //  LiveCameraFiltering
 //
 //  Created by Simon Gladman on 05/07/2015.
+//	Updated to Swift 4 by Daniel Illescas Romero on June 10th, 2017
 //  Copyright © 2015 Simon Gladman. All rights reserved.
 //
 // Thanks to: http://www.objc.io/issues/21-camera-and-photos/camera-capture-on-ios/
@@ -50,89 +51,76 @@ let Filters = [
     Posterize: PosterizeFilter
 ]
 
-let FilterNames = [String](Filters.keys).sort()
+let FilterNames = [String](Filters.keys).sorted()
 
-class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate
-{
-    let mainGroup = UIStackView()
-    let imageView = UIImageView(frame: CGRectZero)
-    let filtersControl = UISegmentedControl(items: FilterNames)
+class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+	
+	@IBOutlet weak var mainGroup: UIStackView!
+	@IBOutlet weak var imageView: UIImageView!
+	@IBOutlet weak var filtersControl: UISegmentedControl!
     
-    override func viewDidLoad()
-    {
+    override func viewDidLoad() {
+		
         super.viewDidLoad()
-        
-        view.addSubview(mainGroup)
-        mainGroup.axis = UILayoutConstraintAxis.Vertical
-        mainGroup.distribution = UIStackViewDistribution.Fill
-        
-        mainGroup.addArrangedSubview(imageView)
-        mainGroup.addArrangedSubview(filtersControl)
-        
-        imageView.contentMode = UIViewContentMode.ScaleAspectFit
-        
-        filtersControl.selectedSegmentIndex = 0
+		
+		filtersControl.removeAllSegments()
+		
+		for filterName in FilterNames {
+			filtersControl.insertSegment(withTitle: filterName, at: filtersControl.numberOfSegments, animated: false)
+		}
+		filtersControl.selectedSegmentIndex = 0
         
         let captureSession = AVCaptureSession()
-        captureSession.sessionPreset = AVCaptureSessionPresetPhoto
-        
-        let backCamera = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
-        
-        do
-        {
-            let input = try AVCaptureDeviceInput(device: backCamera)
-            
-            captureSession.addInput(input)
-        }
-        catch
-        {
-            print("can't access camera")
-            return
-        }
-        
-        // although we don't use this, it's required to get captureOutput invoked
-        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        view.layer.addSublayer(previewLayer)
+        captureSession.sessionPreset = AVCaptureSession.Preset.photo
+		
+		guard let captureDevice = AVCaptureDevice.default(for: .video), let input = try? AVCaptureDeviceInput(device: captureDevice) else {
+			print("Can't access the camera")
+			return
+		}
+		
+		if captureSession.canAddInput(input) {
+			captureSession.addInput(input)
+		}
         
         let videoOutput = AVCaptureVideoDataOutput()
-        
-        videoOutput.setSampleBufferDelegate(self, queue: dispatch_queue_create("sample buffer delegate", DISPATCH_QUEUE_SERIAL))
-        if captureSession.canAddOutput(videoOutput)
-        {
+		
+        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue.main)
+        if captureSession.canAddOutput(videoOutput) {
             captureSession.addOutput(videoOutput)
         }
+		
+		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+		view.layer.addSublayer(previewLayer)
         
         captureSession.startRunning()
     }
     
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!)
-    {
-        guard let filter = Filters[FilterNames[filtersControl.selectedSegmentIndex]] else
-        {
-            return
-        }
-        
-        let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        let cameraImage = CIImage(CVPixelBuffer: pixelBuffer!)
-        
-        filter!.setValue(cameraImage, forKey: kCIInputImageKey)
-        
-        let filteredImage = UIImage(CIImage: filter!.valueForKey(kCIOutputImageKey) as! CIImage!)
-        
-        dispatch_async(dispatch_get_main_queue())
-        {
-            self.imageView.image = filteredImage
-        }
-        
+    func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+		
+		DispatchQueue.main.async {
+			
+			switch UIApplication.shared.statusBarOrientation {
+			case .landscapeLeft:
+				connection.videoOrientation = .landscapeLeft
+			case .landscapeRight:
+				connection.videoOrientation = .landscapeRight
+			default:
+				connection.videoOrientation = .portrait
+			}
+			
+			if let filter = Filters[FilterNames[self.filtersControl.selectedSegmentIndex]] {
+				
+				guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+				let cameraImage = CIImage(cvPixelBuffer: pixelBuffer)
+				
+				filter?.setValue(cameraImage, forKey: kCIInputImageKey)
+				
+				if let outputValue = filter?.value(forKey: kCIOutputImageKey) as? CIImage {
+					
+					let filteredImage = UIImage(ciImage: outputValue)
+					self.imageView.image = filteredImage
+				}
+			}
+		}
     }
-    
-    override func viewDidLayoutSubviews()
-    {
-        let topMargin = topLayoutGuide.length
-        
-        mainGroup.frame = CGRect(x: 0, y: topMargin, width: view.frame.width, height: view.frame.height - topMargin).insetBy(dx: 5, dy: 5)
-    }
-    
 }
-
-
