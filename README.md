@@ -8,7 +8,7 @@ Changes from the original master version:
 	· Now the app has Portrait and Landscape support
 	· Minor adjustments
 	· Top & Buttom layout guides replaced by Safe Area Layout guides
-	· **Notes:** Issue [#1](https://github.com/FlexMonkey/LiveCameraFiltering/issues/1) stil active
+	· **Notes:** Issue [#1](https://github.com/FlexMonkey/LiveCameraFiltering/issues/1) stil active  
 	
 Demonstration of applying a selection of CIFilters (`CICMYKHalftone`, `CIComicEffect`, `CIEdges`, `CIColorInvert`, `CIPointillize`, `CILineOverlay` and `CIColorPosterize`) to a live video feed. 
 
